@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1775748770853,
+      "tag": "0000_solid_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1775750069052,
+      "tag": "0001_add_users_email_password",
+      "breakpoints": true
+    }
+  ]
+}
