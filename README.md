@@ -1,6 +1,6 @@
 # learn-vibe-coding
 
-Backend bootstrap menggunakan Bun + Elysia + Drizzle + MySQL.
+Backend bootstrap menggunakan Bun + Elysia + Drizzle + MariaDB.
 
 ## Setup
 
@@ -14,7 +14,7 @@ Copy env:
 cp .env.example .env
 ```
 
-Set `DATABASE_URL` di `.env` jika ingin memakai fitur DB.
+Set `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_NAME` di `.env` jika ingin memakai fitur DB.
 
 ## Run (dev)
 
