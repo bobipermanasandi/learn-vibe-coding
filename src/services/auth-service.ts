@@ -70,3 +70,15 @@ export async function getCurrentUserByToken(token: string): Promise<CurrentUser 
   };
 }
 
+export async function logoutUserByToken(token: string): Promise<boolean> {
+  const t = typeof token === "string" ? token.trim() : "";
+  if (!t) return false;
+
+  const db = requireDb();
+  const result = await db.delete(sessions).where(eq(sessions.token, t));
+  const affectedRows =
+    (result as unknown as { affectedRows?: number })?.affectedRows ??
+    (Array.isArray(result) ? (result[0] as { affectedRows?: number } | undefined)?.affectedRows : undefined) ??
+    0;
+  return affectedRows > 0;
+}

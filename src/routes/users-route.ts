@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { EmailAlreadyExistsError, registerUser } from "../services/users-service";
-import { getCurrentUserByToken } from "../services/auth-service";
+import { getCurrentUserByToken, logoutUserByToken } from "../services/auth-service";
 import { requireDb } from "../db/client";
 import { users } from "../db/schema";
 import { parseBearerToken } from "../lib/auth";
@@ -56,6 +56,31 @@ export const usersRoute = new Elysia()
           created_at: user.createdAt,
         },
       };
+    } catch (err) {
+      if (isDbNotConfiguredError(err)) {
+        set.status = 503;
+        return { success: false, message: "Service unavailable" };
+      }
+
+      set.status = 500;
+      return { success: false, message: "Service unavailable" };
+    }
+  })
+  .post("/api/users/logout", async ({ headers, set }) => {
+    const token = parseBearerToken(headers?.authorization);
+    if (!token) {
+      set.status = 401;
+      return { success: false, message: "Unauthorized" };
+    }
+
+    try {
+      const ok = await logoutUserByToken(token);
+      if (!ok) {
+        set.status = 401;
+        return { success: false, message: "Unauthorized" };
+      }
+
+      return { success: true, message: "User berhasil logout" };
     } catch (err) {
       if (isDbNotConfiguredError(err)) {
         set.status = 503;
