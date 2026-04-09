@@ -19,6 +19,13 @@ function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
 }
 
+export type CurrentUser = {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+};
+
 export async function loginUser(input: LoginUserInput): Promise<{ token: string }> {
   const email = isNonEmptyString(input.email) ? input.email.trim().toLowerCase() : "";
   const password = isNonEmptyString(input.password) ? input.password : "";
@@ -39,5 +46,27 @@ export async function loginUser(input: LoginUserInput): Promise<{ token: string 
   await db.insert(sessions).values({ token, userId: user.id });
 
   return { token };
+}
+
+export async function getCurrentUserByToken(token: string): Promise<CurrentUser | null> {
+  const t = typeof token === "string" ? token.trim() : "";
+  if (!t) return null;
+
+  const db = requireDb();
+
+  const sessionRows = await db.select().from(sessions).where(eq(sessions.token, t)).limit(1);
+  const session = sessionRows[0];
+  if (!session?.userId) return null;
+
+  const userRows = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const user = userRows[0];
+  if (!user) return null;
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+  };
 }
 

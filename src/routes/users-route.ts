@@ -1,7 +1,9 @@
 import { Elysia } from "elysia";
 import { EmailAlreadyExistsError, registerUser } from "../services/users-service";
+import { getCurrentUserByToken } from "../services/auth-service";
 import { requireDb } from "../db/client";
 import { users } from "../db/schema";
+import { parseBearerToken } from "../lib/auth";
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
@@ -28,6 +30,40 @@ export const usersRoute = new Elysia()
       return { data: rows };
     } catch (err) {
       return { data: [], error: isDbNotConfiguredError(err) ? "db_not_configured" : "unknown" };
+    }
+  })
+  .get("/api/users/current", async ({ headers, set }) => {
+    const token = parseBearerToken(headers?.authorization);
+    if (!token) {
+      set.status = 401;
+      return { success: false, message: "Unauthorized" };
+    }
+
+    try {
+      const user = await getCurrentUserByToken(token);
+      if (!user) {
+        set.status = 401;
+        return { success: false, message: "Unauthorized" };
+      }
+
+      return {
+        success: true,
+        message: "User yang sedang login",
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          created_at: user.createdAt,
+        },
+      };
+    } catch (err) {
+      if (isDbNotConfiguredError(err)) {
+        set.status = 503;
+        return { success: false, message: "Service unavailable" };
+      }
+
+      set.status = 500;
+      return { success: false, message: "Service unavailable" };
     }
   })
   .post("/api/users", async ({ body, set }) => {
