@@ -70,3 +70,14 @@ export async function getCurrentUserByToken(token: string): Promise<CurrentUser 
   };
 }
 
+export async function logoutUserByToken(token: string): Promise<boolean> {
+  const t = typeof token === "string" ? token.trim() : "";
+  if (!t) return false;
+
+  const db = requireDb();
+  const existing = await db.select({ id: sessions.id }).from(sessions).where(eq(sessions.token, t)).limit(1);
+  if (existing.length === 0) return false;
+
+  await db.delete(sessions).where(eq(sessions.token, t));
+  return true;
+}
