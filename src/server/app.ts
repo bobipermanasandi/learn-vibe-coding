@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { usersRoute } from "../routes/users-route";
 import { authRoute } from "../routes/auth-route";
@@ -24,7 +24,24 @@ export const app = new Elysia()
       },
     })
   )
-  .get("/health", () => ({ ok: true }))
+  .get("/health", () => ({ ok: true }), {
+    detail: {
+      tags: ["App"],
+      summary: "Health check",
+      responses: {
+        200: {
+          description: "Server is healthy",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                ok: t.Boolean(),
+              }),
+            },
+          },
+        },
+      },
+    },
+  })
   .use(usersRoute)
   .use(authRoute);
 

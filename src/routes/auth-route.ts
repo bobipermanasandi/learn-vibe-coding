@@ -57,14 +57,49 @@ export const authRoute = new Elysia({ prefix: "/api" })
     responses: {
       200: {
         description: "Login successful",
+        content: {
+          "application/json": {
+            schema: t.Object({
+              success: t.Boolean(),
+              message: t.String(),
+              data: t.String(),
+            }),
+          },
+        },
       },
       400: {
         description: "Invalid input",
+        content: {
+          "application/json": {
+            schema: t.Object({
+              success: t.Boolean(),
+              message: t.String(),
+            }),
+          },
+        },
       },
       401: {
         description: "Invalid credentials",
+        content: {
+          "application/json": {
+            schema: t.Object({
+              success: t.Boolean(),
+              message: t.String(),
+            }),
+          },
+        },
+      },
+      503: {
+        description: "Service unavailable",
+        content: {
+          "application/json": {
+            schema: t.Object({
+              success: t.Boolean(),
+              message: t.String(),
+            }),
+          },
+        },
       },
     },
   },
 });
-
