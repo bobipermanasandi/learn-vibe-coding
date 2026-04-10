@@ -105,9 +105,31 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       responses: {
         200: {
           description: "Current user details",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+                data: t.Object({
+                  id: t.Number(),
+                  name: t.String(),
+                  email: t.String(),
+                  created_at: t.String(),
+                }),
+              }),
+            },
+          },
         },
         401: {
           description: "Unauthorized",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
       },
     },
@@ -144,9 +166,25 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       responses: {
         200: {
           description: "Logout success",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
         401: {
           description: "Unauthorized",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
       },
     },
@@ -206,12 +244,36 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       responses: {
         201: {
           description: "User created",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
         400: {
           description: "Invalid input",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
         409: {
           description: "Email already exists",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                success: t.Boolean(),
+                message: t.String(),
+              }),
+            },
+          },
         },
       },
     },
