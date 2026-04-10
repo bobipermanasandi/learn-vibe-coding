@@ -8,8 +8,18 @@ const getOptionalNumber = (key: string) => {
   return n;
 };
 
+const getPort = () => {
+  const raw = process.env.PORT;
+  if (!raw) return 3000;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 1 || n > 65535) {
+    throw new Error("PORT must be a number between 1 and 65535");
+  }
+  return n;
+};
+
 export const env = {
-  PORT: process.env.PORT ? Number(process.env.PORT) : 3000,
+  PORT: getPort(),
   DATABASE_HOST: getOptionalEnv("DATABASE_HOST"),
   DATABASE_PORT: getOptionalNumber("DATABASE_PORT"),
   DATABASE_USER: getOptionalEnv("DATABASE_USER"),

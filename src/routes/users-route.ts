@@ -26,7 +26,15 @@ export const usersRoute = new Elysia()
   .get("/api/users", async () => {
     try {
       const db = requireDb();
-      const rows = await db.select().from(users).limit(50);
+      const rows = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          created_at: users.createdAt,
+        })
+        .from(users)
+        .limit(50);
       return { data: rows };
     } catch (err) {
       return { data: [], error: isDbNotConfiguredError(err) ? "db_not_configured" : "unknown" };
