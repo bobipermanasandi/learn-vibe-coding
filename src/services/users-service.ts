@@ -8,6 +8,10 @@ export type RegisterUserInput = {
   password: string;
 };
 
+/**
+ * Error domain-level untuk kasus email sudah terdaftar.
+ * Dipakai agar layer route bisa mengubahnya menjadi HTTP 409 tanpa bergantung pada detail error DB.
+ */
 export class EmailAlreadyExistsError extends Error {
   constructor() {
     super("Email already exists");
@@ -15,6 +19,10 @@ export class EmailAlreadyExistsError extends Error {
   }
 }
 
+/**
+ * Mendeteksi error duplikasi email dari MySQL (`ER_DUP_ENTRY` / errno 1062).
+ * Implementasi ini juga meng-handle error yang terbungkus di `cause` (misalnya dari library/promise wrapper).
+ */
 function isDuplicateEmailError(err: unknown) {
   if (!err || typeof err !== "object") return false;
 
@@ -42,6 +50,12 @@ function isDuplicateEmailError(err: unknown) {
   );
 }
 
+/**
+ * Membuat user baru:
+ * - normalisasi input (trim + lowercase email)
+ * - hash password sebelum disimpan
+ * - lempar `EmailAlreadyExistsError` jika email sudah dipakai
+ */
 export async function registerUser(input: RegisterUserInput) {
   const db = requireDb();
 

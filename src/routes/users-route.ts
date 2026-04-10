@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { EmailAlreadyExistsError, registerUser } from "../services/users-service";
 import { getCurrentUserByToken, logoutUserByToken } from "../services/auth-service";
 import { requireDb } from "../db/client";
@@ -22,8 +22,8 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export const usersRoute = new Elysia()
-  .get("/api/users", async () => {
+export const usersRoute = new Elysia({ prefix: "/api" })
+  .get("/users", async () => {
     try {
       const db = requireDb();
       const rows = await db
@@ -39,8 +39,32 @@ export const usersRoute = new Elysia()
     } catch (err) {
       return { data: [], error: isDbNotConfiguredError(err) ? "db_not_configured" : "unknown" };
     }
+  }, {
+    detail: {
+      tags: ["Users"],
+      summary: "Get all users",
+      responses: {
+        200: {
+          description: "List of users",
+          content: {
+            "application/json": {
+              schema: t.Object({
+                data: t.Array(
+                  t.Object({
+                    id: t.Number(),
+                    name: t.String(),
+                    email: t.String(),
+                    created_at: t.String(),
+                  })
+                ),
+              }),
+            },
+          },
+        },
+      },
+    },
   })
-  .get("/api/users/current", async ({ headers, set }) => {
+  .get("/users/current", async ({ headers, set }) => {
     const token = parseBearerToken(headers?.authorization);
     if (!token) {
       set.status = 401;
@@ -73,8 +97,22 @@ export const usersRoute = new Elysia()
       set.status = 500;
       return { success: false, message: "Service unavailable" };
     }
+  }, {
+    detail: {
+      tags: ["Users"],
+      summary: "Get current logged in user",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: "Current user details",
+        },
+        401: {
+          description: "Unauthorized",
+        },
+      },
+    },
   })
-  .post("/api/users/logout", async ({ headers, set }) => {
+  .post("/users/logout", async ({ headers, set }) => {
     const token = parseBearerToken(headers?.authorization);
     if (!token) {
       set.status = 401;
@@ -98,8 +136,22 @@ export const usersRoute = new Elysia()
       set.status = 500;
       return { success: false, message: "Service unavailable" };
     }
+  }, {
+    detail: {
+      tags: ["Users"],
+      summary: "Logout current user",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: "Logout success",
+        },
+        401: {
+          description: "Unauthorized",
+        },
+      },
+    },
   })
-  .post("/api/users", async ({ body, set }) => {
+  .post("/users", async ({ body, set }) => {
     const payload = body as unknown;
 
     if (!payload || typeof payload !== "object") {
@@ -142,5 +194,26 @@ export const usersRoute = new Elysia()
       set.status = 500;
       return { success: false, message: "User baru gagal ditambahkan" };
     }
+  }, {
+    body: t.Object({
+      name: t.String(),
+      email: t.String(),
+      password: t.String(),
+    }),
+    detail: {
+      tags: ["Users"],
+      summary: "Register new user",
+      responses: {
+        201: {
+          description: "User created",
+        },
+        400: {
+          description: "Invalid input",
+        },
+        409: {
+          description: "Email already exists",
+        },
+      },
+    },
   });
 

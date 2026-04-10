@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { InvalidCredentialsError, loginUser } from "../services/auth-service";
 
 function isNonEmptyString(v: unknown): v is string {
@@ -13,7 +13,8 @@ function isDbNotConfiguredError(err: unknown) {
   );
 }
 
-export const authRoute = new Elysia().post("/api/login", async ({ body, set }) => {
+export const authRoute = new Elysia({ prefix: "/api" })
+  .post("/login", async ({ body, set }) => {
   const payload = body as unknown;
 
   if (!payload || typeof payload !== "object") {
@@ -45,5 +46,25 @@ export const authRoute = new Elysia().post("/api/login", async ({ body, set }) =
     set.status = 500;
     return { success: false, message: "Service unavailable" };
   }
+}, {
+  body: t.Object({
+    email: t.String(),
+    password: t.String(),
+  }),
+  detail: {
+    tags: ["Auth"],
+    summary: "User login",
+    responses: {
+      200: {
+        description: "Login successful",
+      },
+      400: {
+        description: "Invalid input",
+      },
+      401: {
+        description: "Invalid credentials",
+      },
+    },
+  },
 });
 
