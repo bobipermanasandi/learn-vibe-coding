@@ -125,6 +125,14 @@ Response:
 { "ok": true }
 ```
 
+### API Documentation
+
+Tersedia secara interaktif menggunakan Swagger UI.
+
+#### `GET /docs`
+
+Halaman dokumentasi OpenAPI dari seluruh endpoint yang ada, mencakup definisi request, response, dan skema data.
+
 ### Users
 
 #### `GET /api/users`
